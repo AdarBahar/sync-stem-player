@@ -22,7 +22,7 @@
     <!-- Preload critical resources -->
     <link rel="preload" href="js/player.js" as="script">
     <link rel="preload" href="js/audio-engine.js" as="script">
-    <script src="https://cdn.eu.amplitude.com/script/f66c4bb887d179e34b599dc900168ed5.js"></script><script>window.amplitude.add(window.sessionReplay.plugin({sampleRate: 1}));window.amplitude.init('f66c4bb887d179e34b599dc900168ed5', {"fetchRemoteConfig":true,"serverZone":"EU","autocapture":true});</script>
+    
 </head>
 <body>
     <!-- Loading Screen -->
@@ -79,6 +79,11 @@
                 </div>
             </div>
         </section>
+
+        <!-- Play Demo Button (moved outside upload section) -->
+        <div style="text-align:center; margin: 24px 0;">
+            <button id="play-demo-btn" class="secondary-button demo-button">🎵 Play Demo Song</button>
+        </div>
 
         <!-- Player Section -->
         <section id="player-section" class="player-section" style="display: none;">

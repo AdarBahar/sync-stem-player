@@ -361,3 +361,56 @@ console.log('🎛️ Stem Player application script loaded');
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { StemPlayerAPI };
 }
+
+// Add after DOMContentLoaded or main app initialization
+
+document.addEventListener('DOMContentLoaded', () => {
+    const playDemoBtn = document.getElementById('play-demo-btn');
+    const stems = [
+        'Led Zeppelin - Ramble On - bass.mp3',
+        'Led Zeppelin - Ramble On - drums.mp3',
+        'Led Zeppelin - Ramble On - other.mp3',
+        'Led Zeppelin - Ramble On - vocals.mp3'
+    ];
+    const demoPath = 'examples/demo-stems/';
+
+    // Hide Play Demo if files are loaded
+    function updatePlayDemoVisibility() {
+        const playerSection = document.getElementById('player-section');
+        if (playerSection && playerSection.style.display !== 'none') {
+            playDemoBtn.style.display = 'none';
+        } else {
+            playDemoBtn.style.display = '';
+        }
+    }
+    updatePlayDemoVisibility();
+    // Listen for player section visibility changes
+    const observer = new MutationObserver(updatePlayDemoVisibility);
+    observer.observe(document.getElementById('player-section'), { attributes: true, attributeFilter: ['style'] });
+
+    playDemoBtn.addEventListener('click', async () => {
+        playDemoBtn.disabled = true;
+        playDemoBtn.textContent = 'Loading...';
+        try {
+            // Fetch all stems as blobs
+            const files = await Promise.all(stems.map(async (name) => {
+                const response = await fetch(demoPath + encodeURIComponent(name));
+                if (!response.ok) throw new Error('Failed to load ' + name);
+                const blob = await response.blob();
+                // Create a File object for compatibility
+                return new File([blob], name, { type: blob.type });
+            }));
+            // Use the public API to load files
+            if (window.StemPlayerAPI && window.StemPlayerAPI.loadFiles) {
+                await window.StemPlayerAPI.loadFiles(files);
+            } else {
+                alert('Player not initialized');
+            }
+        } catch (err) {
+            alert('Error loading demo: ' + err.message);
+        } finally {
+            playDemoBtn.disabled = false;
+            playDemoBtn.textContent = 'Play Demo';
+        }
+    });
+});
