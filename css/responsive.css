@@ -1,0 +1,346 @@
+/* Responsive Design */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+    .stems-container {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+    
+    .master-controls-row {
+        gap: var(--spacing-xl);
+    }
+}
+
+/* Desktop (992px - 1199px) */
+@media (max-width: 1199px) {
+    .app-header {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+    
+    .player-section {
+        padding: var(--spacing-lg);
+    }
+    
+    .upload-section {
+        padding: var(--spacing-lg);
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (max-width: 991px) {
+    .header-content {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        text-align: center;
+    }
+    
+    .app-header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .master-controls-row {
+        flex-direction: column;
+        gap: var(--spacing-lg);
+        align-items: stretch;
+    }
+    
+    .playback-controls {
+        justify-content: center;
+    }
+    
+    .time-display {
+        justify-content: center;
+        font-size: 1rem;
+    }
+    
+    .master-volume-control {
+        min-width: auto;
+        justify-content: center;
+    }
+    
+    .player-options {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+    }
+    
+    .option-group {
+        justify-content: center;
+    }
+    
+    .view-options {
+        justify-content: center;
+    }
+    
+    .shortcuts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile Large (576px - 767px) */
+@media (max-width: 767px) {
+    .app-header {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    .player-section {
+        padding: var(--spacing-md);
+    }
+    
+    .upload-section {
+        padding: var(--spacing-md);
+    }
+    
+    .master-controls {
+        padding: var(--spacing-md);
+    }
+    
+    .stem-control {
+        padding: var(--spacing-md);
+    }
+    
+    .stem-controls-row {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+    }
+    
+    .stem-volume-control {
+        justify-content: space-between;
+    }
+    
+    .stem-actions {
+        justify-content: center;
+    }
+    
+    .drop-zone {
+        padding: var(--spacing-lg);
+    }
+    
+    .upload-icon {
+        font-size: 2.5rem;
+    }
+    
+    .format-tags {
+        gap: var(--spacing-xs);
+    }
+    
+    .format-tag {
+        font-size: 0.75rem;
+        padding: 2px var(--spacing-xs);
+    }
+}
+
+/* Mobile Small (up to 575px) */
+@media (max-width: 575px) {
+    :root {
+        --spacing-xs: 0.2rem;
+        --spacing-sm: 0.4rem;
+        --spacing-md: 0.8rem;
+        --spacing-lg: 1.2rem;
+        --spacing-xl: 1.6rem;
+    }
+    
+    .app-header h1 {
+        font-size: 1.1rem;
+    }
+    
+    .header-controls {
+        gap: var(--spacing-xs);
+    }
+    
+    .icon-button {
+        min-width: 36px;
+        height: 36px;
+        padding: var(--spacing-xs);
+    }
+    
+    .control-button {
+        min-width: 44px;
+        height: 44px;
+        font-size: 1rem;
+    }
+    
+    .playback-controls {
+        gap: var(--spacing-sm);
+    }
+    
+    .time-display {
+        font-size: 0.9rem;
+    }
+    
+    .stem-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        align-items: stretch;
+    }
+    
+    .stem-name {
+        font-size: 1rem;
+        justify-content: center;
+    }
+    
+    .stem-actions {
+        gap: var(--spacing-xs);
+    }
+    
+    .stem-button {
+        flex: 1;
+        text-align: center;
+        font-size: 0.8rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+    
+    .option-group {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        align-items: center;
+    }
+    
+    .view-options {
+        gap: var(--spacing-xs);
+    }
+    
+    .view-button {
+        flex: 1;
+        text-align: center;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: var(--spacing-sm);
+    }
+    
+    .modal-header {
+        padding: var(--spacing-md);
+    }
+    
+    .modal-body {
+        padding: var(--spacing-md);
+    }
+    
+    .status-bar {
+        padding: var(--spacing-xs) var(--spacing-md);
+    }
+    
+    .status-content {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        text-align: center;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .control-button {
+        min-width: 48px;
+        height: 48px;
+    }
+    
+    .icon-button {
+        min-width: 44px;
+        height: 44px;
+    }
+    
+    .stem-button {
+        min-height: 44px;
+        padding: var(--spacing-md);
+    }
+    
+    .progress-bar {
+        height: 12px;
+    }
+    
+    .progress-handle {
+        width: 20px;
+        height: 20px;
+        opacity: 1;
+    }
+    
+    .volume-slider {
+        height: 8px;
+    }
+    
+    .volume-slider::-webkit-slider-thumb {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .volume-slider::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .loading-spinner {
+        border-width: 2px;
+    }
+    
+    .progress-bar {
+        border: 1px solid var(--border-color);
+    }
+    
+    .stem-color-indicator {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .loading-spinner {
+        animation: none;
+        border-top-color: var(--primary-color);
+    }
+    
+    .progress-fill,
+    .stem-progress-fill,
+    .waveform-progress {
+        transition: none;
+    }
+}
+
+/* Dark Mode Preference */
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --bg-tertiary: #e0e0e0;
+        --text-primary: #333333;
+        --text-secondary: #666666;
+        --text-muted: #999999;
+        --border-color: #dddddd;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .app-header,
+    .status-bar,
+    .upload-section,
+    .player-options {
+        display: none;
+    }
+    
+    .player-section {
+        padding: 0;
+    }
+    
+    .stem-control {
+        break-inside: avoid;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .master-controls {
+        break-inside: avoid;
+    }
+}
