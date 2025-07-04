@@ -1,16 +1,16 @@
 version: '3.8'
 
 services:
+  # Production build with Nginx
   stem-player:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: stem-player
     ports:
       - "8080:80"
-    volumes:
-      - ./:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     restart: unless-stopped
-    
+
     # Health check
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]
@@ -18,10 +18,26 @@ services:
       timeout: 10s
       retries: 3
 
-  # Optional: Development server with live reload
+  # Development server with Vite
   dev-server:
     image: node:18-alpine
     container_name: stem-player-dev
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    profiles:
+      - development
+    environment:
+      - NODE_ENV=development
+
+  # Legacy development server
+  legacy-dev:
+    image: node:18-alpine
+    container_name: stem-player-legacy
     working_dir: /app
     ports:
       - "3000:3000"
@@ -29,7 +45,7 @@ services:
       - ./:/app
     command: npx live-server --port=3000 --host=0.0.0.0 --open=/
     profiles:
-      - development
+      - legacy
 
 networks:
   default:

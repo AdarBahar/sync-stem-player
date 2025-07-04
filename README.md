@@ -1,6 +1,15 @@
 # 🎛️ Synchronized Stem Player
 
-A standalone web-based audio player for synchronized playback of multiple audio stems (vocals, drums, bass, other instruments). Perfect for musicians, producers, and audio engineers who need precise control over individual audio tracks.
+A modern web-based audio player built with React and TypeScript for synchronized playback of multiple audio stems (vocals, drums, bass, other instruments). Perfect for musicians, producers, and audio engineers who need precise control over individual audio tracks.
+
+## 🚀 New React Version
+
+This project has been upgraded to use modern web technologies:
+- **React 18** with TypeScript for robust component architecture
+- **Vite** for fast development and optimized builds
+- **Tailwind CSS** for modern, responsive styling
+- **Advanced Audio Engine** with Web Audio API integration
+- **Professional UI** with smooth animations and intuitive controls
 
 ## ✨ Features
 
@@ -38,26 +47,68 @@ A standalone web-based audio player for synchronized playback of multiple audio 
 
 ## 🚀 Quick Start
 
-### Option 1: Simple Web Server
+### Prerequisites
+- Modern web browser with Web Audio API support
+- Node.js 18+ (for development)
+- npm 8+ or yarn
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/AdarBahar/sync-stem-player.git
+   cd sync-stem-player
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open in browser:**
+   Navigate to `http://localhost:5173`
+
+### Build for Production
+
 ```bash
-cd stem-player
-python -m http.server 8080
-# Open http://localhost:8080
+# Build optimized production version
+npm run build
+
+# Preview production build locally
+npm run preview
+
+# Deploy to MAMP (if using MAMP)
+npm run build:mamp
 ```
 
-### Option 2: Node.js Development Server
+### Alternative Deployment Options
+
+#### Option 1: Static Web Server
 ```bash
-cd stem-player
-npm install
-npm start
-# Open http://localhost:3000
+# After building
+npm run build
+# Serve the 'dist' folder with any static web server
 ```
 
-### Option 3: Docker
+#### Option 2: Docker
 ```bash
-cd stem-player
+# Production build
 docker-compose up
-# Open http://localhost:8080
+
+# Development with hot reload
+docker-compose --profile development up dev-server
+```
+
+#### Option 3: MAMP Integration
+```bash
+# Build and copy to MAMP directory
+npm run build:mamp
+# Access at http://localhost:8888/sync-stem-player-ui/
 ```
 
 ## 📁 Supported File Formats
@@ -154,21 +205,56 @@ docker-compose up
 - **Smooth Playback**: No audio dropouts
 - **Fast Loading**: Progressive audio streaming
 
-## 🔒 Privacy
+## 🔒 Security & Privacy
 
+### Privacy First
 - **Local Processing**: All audio stays in your browser
 - **No Upload**: Files never leave your device
 - **No Tracking**: No analytics or data collection
 - **Offline Capable**: Works without internet connection
 
+### Security Features
+- **Input Sanitization**: All user inputs are validated and sanitized
+- **XSS Prevention**: Protected against cross-site scripting
+- **Content Security Policy**: Strict CSP headers implemented
+- **File Validation**: MIME type and extension validation
+- **No External Dependencies**: No CDN or external API calls
+- **Memory Management**: Automatic cleanup of audio resources
+
+### Security Headers (Production)
+When deploying, ensure these headers are set by your web server:
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+```
+
+See [SECURITY.md](SECURITY.md) for detailed security information.
+
 ## 🛠️ Development
 
-Built with modern web technologies:
-- **HTML5 Audio**: Native browser audio support
+### Technology Stack
+- **React 18**: Modern component-based UI framework
+- **TypeScript**: Type-safe development
+- **Vite**: Fast build tool and development server
+- **Tailwind CSS**: Utility-first CSS framework
 - **Web Audio API**: Advanced audio processing
-- **JavaScript ES6+**: Modern language features
-- **CSS Grid/Flexbox**: Responsive layouts
-- **Progressive Web App**: Installable on devices
+- **HTML5 Audio**: Native browser audio support
+- **ESLint**: Code quality and consistency
+- **PostCSS**: Advanced CSS processing
+
+### Development Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run type-check   # TypeScript type checking
+npm run format       # Format code with Prettier
+npm run clean        # Clean build artifacts
+```
 
 ## 📄 License
 
