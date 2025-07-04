@@ -5,15 +5,6 @@ A modern web-based audio player built with React and TypeScript for synchronized
 ## Demo
 See a working demo on https://www.bahar.co.il/player/
 
-## 🚀 New React Version
-
-This project has been upgraded to use modern web technologies:
-- **React 18** with TypeScript for robust component architecture
-- **Vite** for fast development and optimized builds
-- **Tailwind CSS** for modern, responsive styling
-- **Advanced Audio Engine** with Web Audio API integration
-- **Professional UI** with smooth animations and intuitive controls
-
 ## ✨ Features
 
 ### 🎵 Synchronized Playback
@@ -47,6 +38,15 @@ This project has been upgraded to use modern web technologies:
 - **Progress Indicators**: Multiple progress visualization options
 - **Color-coded Stems**: Easy identification of different tracks
 - **Fullscreen Mode**: Immersive playback experience
+
+## 🚀 New React Version
+
+This project has been upgraded to use modern web technologies:
+- **React 18** with TypeScript for robust component architecture
+- **Vite** for fast development and optimized builds
+- **Tailwind CSS** for modern, responsive styling
+- **Advanced Audio Engine** with Web Audio API integration
+- **Professional UI** with smooth animations and intuitive controls
 
 ## 🚀 Quick Start
 
