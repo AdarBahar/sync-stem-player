@@ -2,6 +2,9 @@
 
 A modern web-based audio player built with React and TypeScript for synchronized playback of multiple audio stems (vocals, drums, bass, other instruments). Perfect for musicians, producers, and audio engineers who need precise control over individual audio tracks.
 
+## Demo
+See a working demo on https://www.bahar.co.il/player/
+
 ## 🚀 New React Version
 
 This project has been upgraded to use modern web technologies:
