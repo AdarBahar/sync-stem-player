@@ -131,13 +131,11 @@ const useAudioStemsCreator = (options: UseAudioStemsCreatorOptions = {}) => {
     setIsLoading(true);
 
     try {
-      // Demo files are copied to public/examples/demo-stems by vite-plugin-static-copy
-      // They're served from the web root
       const demoFilePaths = [
-        '/examples/demo-stems/Led Zeppelin - Ramble On - bass.mp3',
-        '/examples/demo-stems/Led Zeppelin - Ramble On - drums.mp3',
-        '/examples/demo-stems/Led Zeppelin - Ramble On - other.mp3',
-        '/examples/demo-stems/Led Zeppelin - Ramble On - vocals.mp3'
+        'examples/demo-stems/Led Zeppelin - Ramble On - bass.mp3',
+        'examples/demo-stems/Led Zeppelin - Ramble On - drums.mp3',
+        'examples/demo-stems/Led Zeppelin - Ramble On - other.mp3',
+        'examples/demo-stems/Led Zeppelin - Ramble On - vocals.mp3'
       ];
 
       const newStems: Stem[] = [];

@@ -114,7 +114,7 @@ const StemPlayer: React.FC<StemPlayerProps> = ({
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover z-0"
-        src="/turntable-small.mp4"
+        src="turntable-small.mp4"
         muted
         loop
         playsInline
