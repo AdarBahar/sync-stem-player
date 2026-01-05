@@ -25,23 +25,23 @@ export interface AudioEngineCallbacks {
 
 export class AudioEngine {
   private audioContext: AudioContext | null = null;
+  private audioContextPromise: Promise<void> | null = null;
   private stems = new Map<string, StemData>();
   private isPlaying = false;
   private currentTime = 0;
   private duration = 0;
   private masterVolume = 0.8;
   private soloedStem: string | null = null;
-  private mutedStems = new Set<string>();
   private syncThreshold = 0.1; // seconds
-  private updateInterval: NodeJS.Timeout | null = null;
+  private updateInterval: ReturnType<typeof setInterval> | null = null;
   private callbacks: AudioEngineCallbacks = {};
 
   constructor(callbacks: AudioEngineCallbacks = {}) {
     this.callbacks = callbacks;
-    this.initializeAudioContext();
+    this.audioContextPromise = this.initializeAudioContext();
   }
 
-  private async initializeAudioContext() {
+  private async initializeAudioContext(): Promise<void> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -50,12 +50,23 @@ export class AudioEngine {
         await this.audioContext.resume();
       }
     } catch (error) {
-      console.error('Failed to initialize AudioContext:', error);
       this.callbacks.onError?.(error as Error);
     }
   }
 
+  /**
+   * Ensures AudioContext is initialized before performing audio operations
+   */
+  private async ensureAudioContext(): Promise<void> {
+    if (this.audioContextPromise) {
+      await this.audioContextPromise;
+    }
+  }
+
   async loadStem(id: string, file: File): Promise<StemData> {
+    // Ensure AudioContext is ready before loading
+    await this.ensureAudioContext();
+
     try {
       const audio = new Audio();
       const url = URL.createObjectURL(file);
@@ -246,7 +257,12 @@ export class AudioEngine {
   private updateStemVolume(stem: StemData) {
     if (stem.audio) {
       stem.audio.volume = (stem.volume / 100) * this.masterVolume;
-      stem.audio.muted = stem.muted;
+      // Respect solo state: if a stem is soloed, mute all others regardless of their muted state
+      if (this.soloedStem !== null) {
+        stem.audio.muted = stem.id !== this.soloedStem;
+      } else {
+        stem.audio.muted = stem.muted;
+      }
     }
   }
 

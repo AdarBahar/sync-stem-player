@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { Upload, Music, FileAudio, AudioWaveform as Waveform, Headphones, Sparkles } from 'lucide-react';
 import Footer from './Footer';
 

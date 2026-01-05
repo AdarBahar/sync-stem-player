@@ -108,9 +108,15 @@
   box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
 }
 
-/* Smooth transitions */
-* {
-  transition: all 0.2s ease-in-out;
+/* Targeted transitions for interactive elements */
+button,
+a,
+input[type="range"],
+.transition-colors,
+.transition-all,
+.transition-transform {
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
 }
 
 /* Custom scrollbar */
@@ -187,4 +193,20 @@ input:focus-visible {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* Toast slide-in animation */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
 }

@@ -1,15 +1,23 @@
-import React from 'react';
+import { memo } from 'react';
 import { Volume2, VolumeX, Mic, Music, Drum, Guitar, Piano, Headphones } from 'lucide-react';
 import { Stem } from '../hooks/useAudioStemsCreator';
 
 interface StemTrackProps {
   stem: Stem;
+  /** ID of the currently soloed stem, or null if none */
+  soloedStemId: string | null;
   onVolumeChange: (stemId: string, volume: number) => void;
   onMute: (stemId: string) => void;
   onSolo: (stemId: string) => void;
 }
 
-const StemTrack: React.FC<StemTrackProps> = ({ stem, onVolumeChange, onMute, onSolo }) => {
+const StemTrack = memo(({ stem, soloedStemId, onVolumeChange, onMute, onSolo }: StemTrackProps) => {
+  // Determine if this stem is effectively muted (either by user or by another stem being soloed)
+  const isEffectivelyMuted = stem.muted || (soloedStemId !== null && soloedStemId !== stem.id);
+
+  // Compute the displayed/effective volume (for the slider visual)
+  // Per the logic: slider always shows baseVolume, but we could dim it when muted
+  const displayVolume = stem.volume;
   const getIcon = (iconType: string) => {
     switch (iconType) {
       case 'bass':
@@ -55,6 +63,20 @@ const StemTrack: React.FC<StemTrackProps> = ({ stem, onVolumeChange, onMute, onS
           button: 'bg-purple-600 hover:bg-purple-500',
           track: 'border-l-purple-400'
         };
+      case 'pink':
+        return {
+          icon: 'text-pink-400 bg-pink-400/10 border-pink-400/20',
+          accent: 'text-pink-400',
+          button: 'bg-pink-600 hover:bg-pink-500',
+          track: 'border-l-pink-400'
+        };
+      case 'amber':
+        return {
+          icon: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+          accent: 'text-amber-400',
+          button: 'bg-amber-600 hover:bg-amber-500',
+          track: 'border-l-amber-400'
+        };
       default:
         return {
           icon: 'text-slate-400 bg-slate-400/10 border-slate-400/20',
@@ -67,8 +89,9 @@ const StemTrack: React.FC<StemTrackProps> = ({ stem, onVolumeChange, onMute, onS
 
   const colorClasses = getColorClasses(stem.color);
 
+  // Stem track - adjust /30 for transparency
   return (
-    <div className={`bg-slate-900/50 backdrop-blur-xl rounded-xl p-4 border border-slate-800 hover:border-slate-700 transition-all duration-300 border-l-4 ${colorClasses.track} group`}>
+    <div className={`bg-slate-900/30 backdrop-blur-xl rounded-xl p-4 border border-slate-800 hover:border-slate-700 transition-all duration-300 border-l-4 ${colorClasses.track} group`}>
       <div className="flex items-center justify-between gap-4">
         {/* Track Info */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -85,7 +108,7 @@ const StemTrack: React.FC<StemTrackProps> = ({ stem, onVolumeChange, onMute, onS
         </div>
 
         {/* Volume Control */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className={`flex items-center gap-2 flex-shrink-0 ${isEffectivelyMuted ? 'opacity-50' : ''}`}>
           <span className="text-slate-400 font-medium text-xs">Volume</span>
           <div className="flex items-center gap-2">
             <Volume2 className="w-4 h-4 text-slate-400 flex-shrink-0" />
@@ -93,12 +116,12 @@ const StemTrack: React.FC<StemTrackProps> = ({ stem, onVolumeChange, onMute, onS
               type="range"
               min="0"
               max="100"
-              value={stem.volume}
+              value={displayVolume}
               onChange={(e) => onVolumeChange(stem.id, parseInt(e.target.value))}
               className="w-20 h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer volume-slider"
             />
             <span className={`font-semibold text-xs w-8 text-right ${colorClasses.accent}`}>
-              {stem.volume}%
+              {displayVolume}%
             </span>
           </div>
         </div>
@@ -108,12 +131,12 @@ const StemTrack: React.FC<StemTrackProps> = ({ stem, onVolumeChange, onMute, onS
           <button
             onClick={() => onMute(stem.id)}
             className={`px-3 py-1.5 rounded-lg font-medium transition-all duration-200 text-xs ${
-              stem.muted 
-                ? 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-500/25' 
+              isEffectivelyMuted
+                ? 'bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-500/25'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
             }`}
           >
-            {stem.muted ? (
+            {isEffectivelyMuted ? (
               <div className="flex items-center gap-1">
                 <VolumeX className="w-3 h-3" />
                 <span>Muted</span>
@@ -144,6 +167,8 @@ const StemTrack: React.FC<StemTrackProps> = ({ stem, onVolumeChange, onMute, onS
       </div>
     </div>
   );
-};
+});
+
+StemTrack.displayName = 'StemTrack';
 
 export default StemTrack;

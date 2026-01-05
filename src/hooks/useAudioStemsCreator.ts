@@ -7,32 +7,53 @@ export interface Stem {
   instrument: string;
   file: File | string;
   audio: HTMLAudioElement;
+  /** User's intended volume level (0-100), never auto-changed by mute/solo */
   volume: number;
+  /** User's mute preference */
   muted: boolean;
+  /** Whether this stem is soloed (at most one stem can be soloed at a time) */
   solo: boolean;
   color: string;
   icon: string;
 }
 
-const useAudioStemsCreator = () => {
+interface UseAudioStemsCreatorOptions {
+  onError?: (message: string) => void;
+  onSuccess?: (message: string) => void;
+}
+
+const useAudioStemsCreator = (options: UseAudioStemsCreatorOptions = {}) => {
+  const { onError, onSuccess } = options;
   const [stems, setStems] = useState<Stem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioEngineRef = useRef<AudioEngine | null>(null);
+  const onErrorRef = useRef(onError);
 
+  // Keep refs updated
+  onErrorRef.current = onError;
+
+  // Cleanup on unmount only - don't create engine on mount
   useEffect(() => {
-    // Initialize audio engine
-    audioEngineRef.current = new AudioEngine({
-      onTimeUpdate: (time) => setCurrentTime(time),
-      onPlayStateChange: (playing) => setIsPlaying(playing),
-      onError: (error) => console.error('Audio engine error:', error)
-    });
-
     return () => {
       audioEngineRef.current?.destroy();
     };
+  }, []);
+
+  // Lazy initialization of audio engine (called on user gesture)
+  const getOrCreateAudioEngine = useCallback(() => {
+    if (!audioEngineRef.current) {
+      audioEngineRef.current = new AudioEngine({
+        onTimeUpdate: (time) => setCurrentTime(time),
+        onPlayStateChange: (playing) => setIsPlaying(playing),
+        onError: (error) => {
+          onErrorRef.current?.(error.message || 'Audio engine error');
+        }
+      });
+    }
+    return audioEngineRef.current;
   }, []);
 
   const getInstrumentFromFileName = (fileName: string): { instrument: string; color: string; icon: string } => {
@@ -44,6 +65,10 @@ const useAudioStemsCreator = () => {
       return { instrument: 'drums', color: 'blue', icon: 'drums' };
     } else if (name.includes('vocal') || name.includes('voice')) {
       return { instrument: 'vocals', color: 'purple', icon: 'vocals' };
+    } else if (name.includes('piano') || name.includes('keys') || name.includes('keyboard')) {
+      return { instrument: 'piano', color: 'pink', icon: 'piano' };
+    } else if (name.includes('guitar') || name.includes('gtr')) {
+      return { instrument: 'guitar', color: 'amber', icon: 'other' };
     } else {
       return { instrument: 'other', color: 'orange', icon: 'other' };
     }
@@ -66,42 +91,56 @@ const useAudioStemsCreator = () => {
   }, []);
 
   const createStemsFromFiles = useCallback(async (files: File[]) => {
-    if (!audioEngineRef.current) return [];
-
+    const engine = getOrCreateAudioEngine();
     setIsLoading(true);
 
     try {
       const newStems: Stem[] = [];
+      const failedFiles: string[] = [];
 
       for (const file of files) {
-        const stemId = `${Date.now()}-${Math.random()}`;
-        const stemData = await audioEngineRef.current.loadStem(stemId, file);
-        const stem = convertStemDataToStem(stemData);
-        newStems.push(stem);
+        try {
+          const stemId = `${Date.now()}-${Math.random()}`;
+          const stemData = await engine.loadStem(stemId, file);
+          const stem = convertStemDataToStem(stemData);
+          newStems.push(stem);
+        } catch {
+          failedFiles.push(file.name);
+        }
       }
 
-      setStems(newStems);
-      setDuration(audioEngineRef.current.getDuration());
-      setIsLoading(false);
+      if (failedFiles.length > 0) {
+        onError?.(`Failed to load: ${failedFiles.join(', ')}`);
+      }
 
+      if (newStems.length > 0) {
+        setStems(newStems);
+        setDuration(engine.getDuration());
+        onSuccess?.(`Loaded ${newStems.length} stem${newStems.length > 1 ? 's' : ''} successfully`);
+      }
+
+      setIsLoading(false);
       return newStems;
     } catch (error) {
-      console.error('Failed to create stems from files:', error);
+      const message = error instanceof Error ? error.message : 'Failed to load audio files';
+      onError?.(message);
       setIsLoading(false);
       return [];
     }
-  }, [convertStemDataToStem]);
+  }, [convertStemDataToStem, getOrCreateAudioEngine, onError, onSuccess]);
 
   const createDemoStems = useCallback(async () => {
+    const engine = getOrCreateAudioEngine();
     setIsLoading(true);
 
     try {
-      // Check if actual demo files exist, otherwise create mock stems
+      // Demo files are copied to public/examples/demo-stems by vite-plugin-static-copy
+      // They're served from the web root
       const demoFilePaths = [
-        './examples/demo-stems/Led Zeppelin - Ramble On - bass.mp3',
-        './examples/demo-stems/Led Zeppelin - Ramble On - drums.mp3',
-        './examples/demo-stems/Led Zeppelin - Ramble On - other.mp3',
-        './examples/demo-stems/Led Zeppelin - Ramble On - vocals.mp3'
+        '/examples/demo-stems/Led Zeppelin - Ramble On - bass.mp3',
+        '/examples/demo-stems/Led Zeppelin - Ramble On - drums.mp3',
+        '/examples/demo-stems/Led Zeppelin - Ramble On - other.mp3',
+        '/examples/demo-stems/Led Zeppelin - Ramble On - vocals.mp3'
       ];
 
       const newStems: Stem[] = [];
@@ -115,13 +154,11 @@ const useAudioStemsCreator = () => {
             const blob = await response.blob();
             const file = new File([blob], demoFilePaths[i].split('/').pop() || `demo-${i}.mp3`, { type: 'audio/mpeg' });
 
-            if (audioEngineRef.current) {
-              const stemId = `demo-${i}`;
-              const stemData = await audioEngineRef.current.loadStem(stemId, file);
-              const stem = convertStemDataToStem(stemData);
-              newStems.push(stem);
-              hasRealFiles = true;
-            }
+            const stemId = `demo-${i}`;
+            const stemData = await engine.loadStem(stemId, file);
+            const stem = convertStemDataToStem(stemData);
+            newStems.push(stem);
+            hasRealFiles = true;
           }
         } catch {
           // Demo file not found, will use mock data instead
@@ -199,29 +236,30 @@ const useAudioStemsCreator = () => {
 
         setDuration(180); // 3 minutes demo duration
       } else {
-        setDuration(audioEngineRef.current?.getDuration() || 0);
+        setDuration(engine.getDuration() || 0);
       }
 
       setStems(newStems);
       setIsLoading(false);
 
+      if (hasRealFiles) {
+        onSuccess?.(`Loaded demo: ${newStems.length} stems`);
+      } else {
+        onError?.('Demo files not found. Using silent placeholder tracks.');
+      }
+
       return newStems;
     } catch (error) {
-      console.error('Failed to create demo stems:', error);
+      const message = error instanceof Error ? error.message : 'Failed to load demo stems';
+      onError?.(message);
       setIsLoading(false);
       return [];
     }
-  }, [convertStemDataToStem]);
+  }, [convertStemDataToStem, getOrCreateAudioEngine, onError, onSuccess]);
 
   const clearStems = useCallback(() => {
     audioEngineRef.current?.destroy();
-
-    // Reinitialize audio engine
-    audioEngineRef.current = new AudioEngine({
-      onTimeUpdate: (time) => setCurrentTime(time),
-      onPlayStateChange: (playing) => setIsPlaying(playing),
-      onError: (error) => console.error('Audio engine error:', error)
-    });
+    audioEngineRef.current = null; // Reset so next user action creates a fresh engine
 
     setStems([]);
     setCurrentTime(0);
@@ -250,36 +288,37 @@ const useAudioStemsCreator = () => {
     audioEngineRef.current?.setMasterVolume(volume);
   }, []);
 
+  // A) User changes a stem's volume slider
   const setStemVolume = useCallback((stemId: string, volume: number) => {
+    // Update audio engine
     audioEngineRef.current?.setStemVolume(stemId, volume);
+    // Update state
     setStems(prev => prev.map(stem =>
       stem.id === stemId ? { ...stem, volume } : stem
     ));
   }, []);
 
+  // B) Toggle mute on stem
   const setStemMuted = useCallback((stemId: string, muted: boolean) => {
+    // Update audio engine (it handles audio.muted internally)
     audioEngineRef.current?.setStemMuted(stemId, muted);
-    setStems(prev => prev.map(stem => {
-      if (stem.id === stemId) {
-        // If muting this track, turn off solo
-        return { ...stem, muted, solo: muted ? false : stem.solo };
-      }
-      return stem;
-    }));
+    // Update state
+    setStems(prev => prev.map(stem =>
+      stem.id === stemId ? { ...stem, muted } : stem
+    ));
   }, []);
 
+  // C) Toggle solo on stem
   const setStemSolo = useCallback((stemId: string, solo: boolean) => {
+    // Update audio engine (it handles muting other stems internally)
     audioEngineRef.current?.setStemSolo(stemId, solo);
-
-    // Update UI state: if soloing a track, turn off solo for all others
+    // Update state - only one stem can be soloed at a time
     setStems(prev => prev.map(stem => {
       if (stem.id === stemId) {
-        // If soloing this track, turn off mute
-        return { ...stem, solo, muted: solo ? false : stem.muted };
+        return { ...stem, solo };
       } else {
-        // If we're soloing the clicked track, turn off solo for all others
-        // If we're un-soloing the clicked track, leave others as they are
-        return { ...stem, solo: solo ? false : stem.solo };
+        // Turn off solo for all other stems
+        return { ...stem, solo: false };
       }
     }));
   }, []);

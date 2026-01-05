@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import FileUpload from './components/FileUpload';
 import StemPlayer from './components/StemPlayer';
 import useAudioStemsCreator from './hooks/useAudioStemsCreator';
+import { useToast } from './contexts/ToastContext';
 
 function App() {
   const [view, setView] = useState<'upload' | 'player'>('upload');
+  const toast = useToast();
+
   const {
     stems,
     isLoading,
@@ -21,7 +24,10 @@ function App() {
     setStemVolume,
     setStemMuted,
     setStemSolo
-  } = useAudioStemsCreator();
+  } = useAudioStemsCreator({
+    onError: toast.error,
+    onSuccess: toast.success,
+  });
 
   const handleFilesSelected = async (files: File[]) => {
     const newStems = await createStemsFromFiles(files);
