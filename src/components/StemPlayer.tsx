@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, ArrowLeft } from 'lucide-react';
 import StemTrack from './StemTrack';
 import Footer from './Footer';
 import { Stem } from '../hooks/useAudioStemsCreator';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
+import { analytics } from '../lib/analytics';
 
 interface StemPlayerProps {
   stems: Stem[];
@@ -66,36 +67,50 @@ const StemPlayer: React.FC<StemPlayerProps> = ({
   // Check if all tracks are muted (or effectively muted due to solo)
   const allTracksMuted = stems.length > 0 && stems.every(stem => stem.muted);
 
-  const togglePlayPause = () => {
+  const togglePlayPause = useCallback(() => {
     if (isPlaying) {
+      analytics.playbackPaused(currentTime, duration);
       onPause();
     } else {
+      analytics.playbackStarted(stems.length);
       onPlay();
     }
-  };
+  }, [isPlaying, currentTime, duration, stems.length, onPause, onPlay]);
 
-  const handleStemVolumeChange = (stemId: string, volume: number) => {
-    onStemVolumeChange(stemId, volume);
-  };
-
-  const handleStemMute = (stemId: string) => {
+  const handleStemVolumeChange = useCallback((stemId: string, volume: number) => {
     const stem = stems.find(s => s.id === stemId);
     if (stem) {
+      analytics.stemVolumeChanged(stem.name, volume);
+    }
+    onStemVolumeChange(stemId, volume);
+  }, [stems, onStemVolumeChange]);
+
+  const handleStemMute = useCallback((stemId: string) => {
+    const stem = stems.find(s => s.id === stemId);
+    if (stem) {
+      analytics.stemMuted(stem.name, !stem.muted);
       onStemMute(stemId, !stem.muted);
     }
-  };
+  }, [stems, onStemMute]);
 
-  const handleStemSolo = (stemId: string) => {
+  const handleStemSolo = useCallback((stemId: string) => {
     const stem = stems.find(s => s.id === stemId);
     if (stem) {
+      analytics.stemSoloed(stem.name, !stem.solo);
       onStemSolo(stemId, !stem.solo);
     }
-  };
+  }, [stems, onStemSolo]);
 
-  const handleMasterVolumeChange = (volume: number) => {
+  const handleMasterVolumeChange = useCallback((volume: number) => {
     setMasterVolume(volume);
+    analytics.masterVolumeChanged(volume);
     onMasterVolumeChange(volume);
-  };
+  }, [onMasterVolumeChange]);
+
+  const handleBack = useCallback(() => {
+    analytics.backToUpload(currentTime);
+    onBack();
+  }, [currentTime, onBack]);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -103,10 +118,11 @@ const StemPlayer: React.FC<StemPlayerProps> = ({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProgressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = (parseFloat(e.target.value) / 100) * duration;
+    analytics.seeked(currentTime, newTime, duration);
     onSeek(newTime);
-  };
+  }, [currentTime, duration, onSeek]);
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col relative overflow-hidden">
@@ -127,7 +143,7 @@ const StemPlayer: React.FC<StemPlayerProps> = ({
         <div className="max-w-7xl mx-auto px-8 py-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={onBack}
+              onClick={handleBack}
               className="flex items-center space-x-2 text-slate-400 hover:text-white transition-colors duration-200 group"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" />

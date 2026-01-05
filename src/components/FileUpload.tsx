@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Upload, Music, FileAudio, AudioWaveform as Waveform, Headphones, Sparkles } from 'lucide-react';
 import Footer from './Footer';
+import { analytics } from '../lib/analytics';
 
 interface FileUploadProps {
   onFilesSelected: (files: File[]) => void;
@@ -16,12 +17,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFilesSelected, onPlayDemo }) 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    const files = Array.from(e.dataTransfer.files).filter(file => 
+
+    const files = Array.from(e.dataTransfer.files).filter(file =>
       file.type.startsWith('audio/')
     );
-    
+
     if (files.length > 0) {
+      const totalSizeMB = files.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024);
+      analytics.filesUploaded(files.length, Math.round(totalSizeMB * 10) / 10);
       onFilesSelected(files);
     }
   }, [onFilesSelected]);
@@ -29,9 +32,16 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFilesSelected, onPlayDemo }) 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
+      const totalSizeMB = files.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024);
+      analytics.filesUploaded(files.length, Math.round(totalSizeMB * 10) / 10);
       onFilesSelected(files);
     }
   }, [onFilesSelected]);
+
+  const handlePlayDemo = useCallback(() => {
+    analytics.demoPlayed();
+    onPlayDemo();
+  }, [onPlayDemo]);
 
   const supportedFormats = ['MP3', 'WAV', 'FLAC', 'M4A', 'OGG', 'AIFF'];
 
@@ -56,7 +66,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFilesSelected, onPlayDemo }) 
             {/* Demo Button */}
             <div className="mt-8">
               <button
-                onClick={onPlayDemo}
+                onClick={handlePlayDemo}
                 className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white px-10 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/25 inline-flex items-center space-x-3"
               >
                 <FileAudio className="w-5 h-5" />
