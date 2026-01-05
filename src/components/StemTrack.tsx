@@ -4,7 +4,6 @@ import { Stem } from '../hooks/useAudioStemsCreator';
 
 interface StemTrackProps {
   stem: Stem;
-  /** ID of the currently soloed stem, or null if none */
   soloedStemId: string | null;
   onVolumeChange: (stemId: string, volume: number) => void;
   onMute: (stemId: string) => void;
@@ -12,12 +11,8 @@ interface StemTrackProps {
 }
 
 const StemTrack = memo(({ stem, soloedStemId, onVolumeChange, onMute, onSolo }: StemTrackProps) => {
-  // Determine if this stem is effectively muted (either by user or by another stem being soloed)
   const isEffectivelyMuted = stem.muted || (soloedStemId !== null && soloedStemId !== stem.id);
 
-  // Compute the displayed/effective volume (for the slider visual)
-  // Per the logic: slider always shows baseVolume, but we could dim it when muted
-  const displayVolume = stem.volume;
   const getIcon = (iconType: string) => {
     switch (iconType) {
       case 'bass':
@@ -89,7 +84,6 @@ const StemTrack = memo(({ stem, soloedStemId, onVolumeChange, onMute, onSolo }: 
 
   const colorClasses = getColorClasses(stem.color);
 
-  // Stem track - adjust /30 for transparency
   return (
     <div className={`bg-slate-900/30 backdrop-blur-xl rounded-xl p-4 border border-slate-800 hover:border-slate-700 transition-all duration-300 border-l-4 ${colorClasses.track} group`}>
       <div className="flex items-center justify-between gap-4">
@@ -116,12 +110,12 @@ const StemTrack = memo(({ stem, soloedStemId, onVolumeChange, onMute, onSolo }: 
               type="range"
               min="0"
               max="100"
-              value={displayVolume}
+              value={stem.volume}
               onChange={(e) => onVolumeChange(stem.id, parseInt(e.target.value))}
               className="w-20 h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer volume-slider"
             />
             <span className={`font-semibold text-xs w-8 text-right ${colorClasses.accent}`}>
-              {displayVolume}%
+              {stem.volume}%
             </span>
           </div>
         </div>

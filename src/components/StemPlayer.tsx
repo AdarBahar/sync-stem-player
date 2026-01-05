@@ -120,10 +120,9 @@ const StemPlayer: React.FC<StemPlayerProps> = ({
         playsInline
       />
 
-      {/* Dark Overlay for readability - adjust /50 to change: /25=light, /50=medium, /75=dark */}
       <div className="absolute inset-0 bg-slate-950/50 z-10" />
 
-      {/* Header - adjust /60 for transparency */}
+      {/* Header */}
       <div className="sticky top-0 z-50 bg-slate-950/60 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-8 py-4">
           <div className="flex items-center justify-between">
@@ -148,7 +147,7 @@ const StemPlayer: React.FC<StemPlayerProps> = ({
       {/* Main Content */}
       <div className="flex-1 relative z-20">
         <div className="max-w-7xl mx-auto px-8 py-6">
-          {/* Master Control Panel - adjust /40 for transparency */}
+          {/* Master Control Panel */}
           <div className="bg-slate-900/40 backdrop-blur-xl rounded-2xl p-6 mb-6 border border-slate-800 shadow-2xl">
             {/* Transport Controls */}
             <div className="flex items-center justify-center space-x-4 mb-6">

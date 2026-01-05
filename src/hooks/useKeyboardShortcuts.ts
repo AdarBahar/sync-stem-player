@@ -7,20 +7,10 @@ interface KeyboardShortcutsProps {
   onSeek: (time: number) => void;
   currentTime: number;
   duration: number;
-  onMuteAll?: () => void;
-  onUnmuteAll?: () => void;
 }
 
-const SEEK_AMOUNT = 5; // seconds
+const SEEK_AMOUNT = 5;
 
-/**
- * Hook for handling keyboard shortcuts in the stem player
- * - Space: Play/Pause
- * - Arrow Left: Seek backward 5 seconds
- * - Arrow Right: Seek forward 5 seconds
- * - Home: Seek to start
- * - End: Seek to end
- */
 const useKeyboardShortcuts = ({
   isPlaying,
   onPlay,

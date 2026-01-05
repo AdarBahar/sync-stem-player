@@ -7,11 +7,8 @@ export interface Stem {
   instrument: string;
   file: File | string;
   audio: HTMLAudioElement;
-  /** User's intended volume level (0-100), never auto-changed by mute/solo */
   volume: number;
-  /** User's mute preference */
   muted: boolean;
-  /** Whether this stem is soloed (at most one stem can be soloed at a time) */
   solo: boolean;
   color: string;
   icon: string;
